@@ -4,6 +4,35 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Map-WEB</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script
+      type="text/javascript"
+      src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=6nv3jwasxn"
+    ></script>
   </head>
-  <body></body>
+  <body>
+    <div class="container">
+      <header>
+        <h1>네이버 지도 API Practice</h1>
+        <p>마커, 인포윈도우, 혼잡도 시각화 예제</p>
+      </header>
+      <div id="map"></div>
+      <div class="controls">
+        <button id="addMarkers">마커 추가하기</button>
+        <button id="toggleCongestion">혼잡도 토글</button>
+        <button id="starNavigation">길안내</button>
+        <button id="reseMap">지도 초기화</button>
+      </div>
+      <div class="log">
+        <h2>실행로그</h2>
+        <div id="log-content"></div>
+      </div>
+    </div>
+
+    <script src="data/mock-data.js"></script>
+    <script src="js/dataService.js"></script>
+    <script src="js/mapService.js"></script>
+    <script src="js/main.js"></script>
+  </body>
 </html>
