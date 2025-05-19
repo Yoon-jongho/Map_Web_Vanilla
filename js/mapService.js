@@ -1,7 +1,7 @@
 "use strict";
 
-const Logger = (function () {
-  function log(message, type) {
+const Logger = (() => {
+  const log = (message, type) => {
     type = type || "info";
 
     const logTime = getCurrentTime();
@@ -33,12 +33,12 @@ const Logger = (function () {
     if (logContent) {
       logContent.scrollTop = logContent.scrollHeight;
     }
-  }
+  };
 
   /**
    * 현재 시간 포맷팅
    */
-  function getCurrentTime() {
+  const getCurrentTime = () => {
     const now = new Date();
     return (
       padZero(now.getHours()) +
@@ -47,21 +47,21 @@ const Logger = (function () {
       ":" +
       padZero(now.getSeconds())
     );
-  }
+  };
 
   /**
    * 숫자 앞에 0 붙이기
    */
-  function padZero(num) {
+  const padZero = (num) => {
     return (num < 10 ? "0" : "") + num;
-  }
+  };
 
   return {
     log: log,
   };
 })();
 
-const MapService = () => {
+const MapService = (() => {
   let map = null;
   let markers = [];
   let infoWindows = [];
@@ -71,9 +71,9 @@ const MapService = () => {
 
   const initMap = () => {
     const mapOptions = {
-      center: new naver.maps.Lating(37.5035, 127.0252),
+      center: new naver.maps.LatLng(37.5035, 127.0252),
       zoom: 17,
-      mapTypeID: naver.maps.MapTypeId.NORMAL,
+      mapTypeId: naver.maps.MapTypeId.NORMAL,
       mapDataControl: false,
       scaleControl: true,
       logoControl: true,
@@ -87,11 +87,10 @@ const MapService = () => {
   };
 
   const createMarker = (areaData) => {
+    const area = areaData.area || areaData;
+
     const marker = new naver.maps.Marker({
-      position: new naver.maps.Lating(
-        areaData.position.lat,
-        areaData.position.lng
-      ),
+      position: new naver.maps.LatLng(area.position.lat, area.position.lng),
       map: null,
       title: areaData.name,
       icon: {
@@ -120,7 +119,7 @@ const MapService = () => {
         });
 
         infoWindow.open(map, marker);
-        Logger().log(areaData.name + "마커가 클릭됨");
+        Logger.log(areaData.name + "마커가 클릭됨");
       }
     });
     markers.push(marker);
@@ -141,6 +140,25 @@ const MapService = () => {
 
   const getInfoWindowContent = (areaData) => {
     const congestionInfo = DataService.getCongestionInfo(areaData.congestion);
+    const percentFilled = Math.floor(
+      (areaData.count / areaData.capacity) * 100
+    );
+
+    let gaugeColor;
+
+    switch (areaData.congestion) {
+      case "low":
+        gaugeColor = "#4CAF50";
+        break;
+      case "medium":
+        gaugeColor = "#FFC107";
+        break;
+      case "high":
+        gaugeColor = "#F44336";
+        break;
+      default:
+        gaugeColor = "#4CAF50";
+    }
 
     return (
       '<div class="info-window">' +
@@ -152,11 +170,20 @@ const MapService = () => {
       '"></span>혼잡도: ' +
       congestionInfo.name +
       "</p>" +
-      "<p>현재 인원: " +
+      '<div class="gauge-container">' +
+      '<div class="gauge-bar" style="width: ' +
+      percentFilled +
+      "%; background-color: " +
+      gaugeColor +
+      '"></div>' +
+      '<div class="gauge-text">' +
       areaData.count +
       "명 / " +
       areaData.capacity +
-      "명</p>" +
+      "명 (" +
+      percentFilled +
+      "%)</div>" +
+      "</div>" +
       "<p>위치: " +
       areaData.floorInfo +
       "</p>" +
@@ -195,7 +222,7 @@ const MapService = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const userLocattion = {
+          const userLocation = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           };
@@ -219,76 +246,99 @@ const MapService = () => {
 
   return {
     init: () => {
-      map = initMap();
+      console.log("MapService 초기화 시작");
 
-      const data = DataService.initData();
-      if (!data) {
-        Logger.log("데이터 초기화 실패", "error");
-        return;
+      const mapElement = document.getElementById("map");
+      if (!mapElement) {
+        console.error("지도를 표시할 엘리먼트를 찾을 수 없음.");
+        return null;
       }
 
-      constcompanyLocation = DataService.getCompanyLocation();
-      if (companyLocation) {
-        map.setCenter(
-          new naver.maps.LatLng(
-            companyLocation.position.lat,
-            companyLocation.position.lng
-          )
-        );
-        companyMarker = new naver.maps.Marker({
-          position: new naver.maps.LatLng(
-            companyLocation.position.lat,
-            companyLocation.position.lng
-          ),
-          map,
-          title: companyLocation.name,
-          icon: {
+      if (!window.naver || !naver.maps) {
+        console.error("네이버 지도 API가 로드되지 않았습니다.");
+        return null;
+      }
+
+      try {
+        console.log("지도 초기화 시도...");
+
+        map = initMap();
+
+        console.log("지도 초기화 성공", map);
+
+        const data = DataService.initData();
+        if (!data) {
+          Logger.log("데이터 초기화 실패", "error");
+          return map;
+        }
+
+        const companyLocation = DataService.getCompanyLocation();
+        if (companyLocation) {
+          map.setCenter(
+            new naver.maps.LatLng(
+              companyLocation.position.lat,
+              companyLocation.position.lng
+            )
+          );
+          companyMarker = new naver.maps.Marker({
+            position: new naver.maps.LatLng(
+              companyLocation.position.lat,
+              companyLocation.position.lng
+            ),
+            map,
+            title: companyLocation.name,
+            icon: {
+              content:
+                '<div style="background-color: #3B5998; width: 24px; height: 37px; border-radius: 8px 8px 0 8px; border: 2px solid #fff;"></div>',
+              size: new naver.maps.Size(24, 37),
+              anchor: new naver.maps.Point(12, 37),
+            },
+          });
+
+          companyInfoWindow = new naver.maps.InfoWindow({
             content:
-              '<div style="background-color: #3B5998; width: 24px; height: 37px; border-radius: 8px 8px 0 8px; border: 2px solid #fff;"></div>',
-            size: new naver.maps.Size(24, 37),
-            anchor: new naver.maps.Point(12, 37),
-          },
-        });
+              '<div class="info-window">' +
+              "<h3>" +
+              companyLocation.name +
+              "</h3>" +
+              "<p>" +
+              companyLocation.description +
+              "</p>" +
+              "</div>",
+            maxWidth: 300,
+            backgroundColor: "#fff",
+            borderColor: "#888",
+            borderWidth: 1,
+            disableAnchor: true,
+          });
 
-        companyInfoWindow = new naver.maps.InfoWindow({
-          content:
-            '<div class="info-window">' +
-            "<h3>" +
-            companyLocation.name +
-            "</h3>" +
-            "<p>" +
-            companyLocation.description +
-            "</p>" +
-            "</div>",
-          maxWidth: 300,
-          backgroundColor: "#fff",
-          borderColor: "#888",
-          borderWidth: 1,
-          disableAnchor: true,
-        });
+          naver.maps.Event.addListener(companyMarker, "click", () => {
+            if (companyInfoWindow.getMap()) companyInfoWindow.close();
+            else {
+              infoWindows.forEach((iw) => {
+                iw.close();
+              });
 
-        naver.maps.Event.addListener(companyMarker, "click", () => {
-          if (companyInfoWindow.getMap()) companyInfoWindow.close();
-          else {
-            infoWindows.forEach((iw) => {
-              iw.close();
-            });
+              companyInfoWindow.open(map, companyMarker);
+              Logger.log(companyLocation.name + "마커가 클릭됨");
+            }
+          });
+        }
 
-            companyInfoWindow.open(map, companyMarker);
-            Logger.log(companyLocation.name + "마커가 클릭됨");
-          }
+        const allAreas = DataService.getAllAreas();
+        allAreas.forEach((area) => {
+          areas.push(area);
+          createMarker(area);
         });
+        Logger.log(
+          "지도가 초기화되었습니다. '마커 추가하기' 버튼을 클릭하여 마커를 추가하세요."
+        );
+        return map;
+      } catch (error) {
+        console.error("지도 초기화 중 오류 발생: ", error);
+        Logger.log("지도 초기화 중 오류가 발생했습니다.", "error");
+        return null;
       }
-
-      const allAreas = DataService.getAllAreas();
-      allAreas.forEach((area) => {
-        areas.push(area);
-        createMarker(area);
-      });
-      Logger.log(
-        "지도가 초기화되었습니다. '마커 추가하기' 버튼을 클릭하여 마커를 추가하세요."
-      );
-      return map;
     },
 
     showMarkers: () => {
@@ -296,6 +346,46 @@ const MapService = () => {
         marker.setMap(map);
       });
       Logger.log("마커가 제거되었습니다.");
+    },
+
+    showRoute: (startId, endId) => {
+      const startArea =
+        startId === "user"
+          ? { position: getUserPosition() }
+          : DataService.getAreaData(startId);
+      const endArea = DataService.getAreaData(endId);
+
+      if (!startArea || !endArea) {
+        Logger.log("경로 표시에 필요한 정보가 없습니다.", "error");
+        return;
+      }
+
+      const routePath = [
+        new naver.maps.LatLng(startArea.position.lat, startArea.position.lng),
+        new naver.maps.LatLng(endArea.position.lat, endArea.position.lng),
+      ];
+
+      if (this.routeLine) {
+        this.routeLine.setMap(null);
+      }
+
+      this.routeLine = new naver.maps.Polyline({
+        map,
+        path: routePath,
+        strokeColor: "#5347AA",
+        strokeWeight: 5,
+        strokeOpacity: 0.7,
+        strokeStyle: "solid",
+      });
+
+      const bounds = new naver.maps.LatLngBounds(
+        new naver.maps.LatLng(startArea.position.lat, startArea.position.lng),
+        new naver.maps.LatLng(endArea.position.lat, endArea.position.lng)
+      );
+
+      map.fitBounds(bounds);
+
+      Logger.log(endArea.name + "까지의 경로가 표시되었습니다.");
     },
 
     toggleCongestion: () => {
@@ -387,11 +477,11 @@ const MapService = () => {
       getCurrentPosition(
         (userLocation) => {
           map.setCenter(
-            new naver.map.LatLng(userLocation.lat, userLocation.lng)
+            new naver.maps.LatLng(userLocation.lat, userLocation.lng)
           );
           Logger.log("사용자 위치로 이동했습니다.", "success");
 
-          const userMarker = new naver.maps.Maker({
+          const userMarker = new naver.maps.Marker({
             position: new naver.maps.LatLng(userLocation.lat, userLocation.lng),
             map,
             title: "현재 위치",
@@ -431,4 +521,4 @@ const MapService = () => {
       }
     },
   };
-};
+})();

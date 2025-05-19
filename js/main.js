@@ -7,7 +7,7 @@ $(document).ready(() => {
     MapService.showMarkers();
   });
 
-  $("toggleCongestion").click(() => {
+  $("#toggleCongestion").click(() => {
     MapService.toggleCongestion();
   });
 
@@ -31,6 +31,12 @@ $(document).ready(() => {
 
   $("#reseMap").click(() => {
     MapService.resetMap();
+  });
+
+  $(".controls").append('<button id="requestLocation">내 위치 찾기</button>');
+
+  $("#requestLocation").click(() => {
+    MapService.moveToUserLocation();
   });
 
   const requestLocationPermission = () => {
@@ -62,6 +68,8 @@ $(document).ready(() => {
       Logger.log("이 브라우저에서는 위치 기능을 지원하지 않음.", "error");
     }
   };
+
+  setTimeout(requestLocationPermission, 2000);
 
   Logger.log("네이버 지도 API 프로토타입이 시작되었습니다.");
   Logger.log(

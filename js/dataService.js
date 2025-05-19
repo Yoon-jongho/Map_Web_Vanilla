@@ -1,6 +1,6 @@
 "use strict";
 
-const DataService = () => {
+const DataService = (() => {
   let data = null;
 
   const updateCongestionRandomly = () => {
@@ -39,45 +39,45 @@ const DataService = () => {
 
   return {
     initData: () => {
-      _data = window.mockData || null;
+      data = window.mockData || null;
 
-      if (!_data) {
+      if (!data) {
         console.error("모킹 데이터 로드 실패함");
         return null;
       }
 
-      return _data;
+      return data;
     },
 
     getAllData: () => {
-      return _data;
+      return data;
     },
 
     getCompanyLocation: () => {
-      if (!_data) return null;
+      if (!data) return null;
 
-      return _data.companyLocation;
+      return data.companyLocation;
     },
 
     getBuildingData: (buildingId) => {
-      if (!_data) return null;
+      if (!data) return null;
 
       return (
-        _data.buildings.find((building) => building.id === buildingId) || null
+        data.buildings.find((building) => building.id === buildingId) || null
       );
     },
 
     getAllBuildings: () => {
-      if (!_data) return null;
+      if (!data) return null;
 
-      return _data.buildings;
+      return data.buildings;
     },
 
     getAreaData: (areaId) => {
-      if (!_data) return null;
+      if (!data) return null;
 
-      for (let i = 0; i < _data.buildings.length; i++) {
-        const building = _data.buildings[i];
+      for (let i = 0; i < data.buildings.length; i++) {
+        const building = data.buildings[i];
 
         for (let j = 0; j < building.areas.length; j++) {
           if (building.areas[j].id === areaId) {
@@ -89,23 +89,21 @@ const DataService = () => {
     },
 
     getAllAreas: () => {
-      if (!_data) return null;
+      if (!data) return null;
 
       const allAreas = [];
-      _data.buildings.forEach((building) => {
+      data.buildings.forEach((building) => {
         building.areas.forEach((area) => {
-          allAreas.push({
-            area,
-          });
+          allAreas.push(area);
         });
       });
       return allAreas;
     },
 
     getCongestionInfo: (level) => {
-      if (!_data) return null;
+      if (!data) return null;
 
-      return _data.congestionLevels[level] || null;
+      return data.congestionLevels[level] || null;
     },
 
     // 혼잡도 데이터 업데이트 (시뮬레이션용)
@@ -133,4 +131,4 @@ const DataService = () => {
       }
     },
   };
-};
+})();
