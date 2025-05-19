@@ -480,6 +480,9 @@ const MapService = (() => {
             new naver.maps.LatLng(userLocation.lat, userLocation.lng)
           );
           Logger.log("사용자 위치로 이동했습니다.", "success");
+          console.log(
+            `현재 사용자 좌표 : Lat(${userLocation.lat}), Lng(${userLocation.lng})`
+          );
 
           const userMarker = new naver.maps.Marker({
             position: new naver.maps.LatLng(userLocation.lat, userLocation.lng),

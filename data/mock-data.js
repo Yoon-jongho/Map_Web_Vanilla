@@ -107,7 +107,7 @@ const mockData = {
 
   companyLocation: {
     name: "우리 회사",
-    position: { lat: 37.5035, lng: 127.0252 },
+    position: { lat: 37.49105, lng: 127.0314672 },
     description: "강남대로 310 위치한 회사 본사",
   },
 
