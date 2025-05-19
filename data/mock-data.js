@@ -5,12 +5,12 @@ const mockData = {
     {
       id: "building_a",
       name: "강남 A 빌딩",
-      position: { lat: 37.5037, lng: 127.0249 },
+      position: { lat: 37.4918, lng: 127.0324 },
       areas: [
         {
           id: "building_a_lobby",
           name: "A 빌딩 로비",
-          position: { lat: 37.5037, lng: 127.0249 },
+          position: { lat: 37.4918, lng: 127.0324 },
           congestion: "low",
           count: 12,
           capacity: 50,
@@ -20,7 +20,7 @@ const mockData = {
         {
           id: "building_a_cafeteria",
           name: "A 빌딩 구내식당",
-          position: { lat: 37.5038, lng: 127.025 },
+          position: { lat: 37.4919, lng: 127.0326 },
           congestion: "medium",
           count: 45,
           capacity: 80,
@@ -30,7 +30,7 @@ const mockData = {
         {
           id: "building_a_office",
           name: "A 빌딩 사무실",
-          position: { lat: 37.5036, lng: 127.0248 },
+          position: { lat: 37.4917, lng: 127.0322 },
           congestion: "high",
           count: 120,
           capacity: 150,
@@ -42,12 +42,12 @@ const mockData = {
     {
       id: "building_b",
       name: "강남 B 빌딩",
-      position: { lat: 37.504, lng: 127.0255 },
+      position: { lat: 37.4902, lng: 127.0305 },
       areas: [
         {
           id: "building_b_lobby",
           name: "B 빌딩 로비",
-          position: { lat: 37.504, lng: 127.0255 },
+          position: { lat: 37.4902, lng: 127.0305 },
           congestion: "low",
           count: 8,
           capacity: 40,
@@ -57,7 +57,7 @@ const mockData = {
         {
           id: "building_b_conference",
           name: "B 빌딩 회의실 구역",
-          position: { lat: 37.5041, lng: 127.0256 },
+          position: { lat: 37.49031212, lng: 127.030777 },
           congestion: "medium",
           count: 25,
           capacity: 60,
